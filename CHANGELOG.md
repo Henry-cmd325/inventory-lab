@@ -7,3 +7,4 @@ All notable changes to this project are documented here. Entries are generated f
 ### Added
 
 - Repository skeleton: README describing the experiment, agent rules, and an experiment log.
+- Apache 2.0 license.

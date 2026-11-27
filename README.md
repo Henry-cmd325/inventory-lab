@@ -27,3 +27,7 @@ Results go into [`EXPERIMENTS.md`](EXPERIMENTS.md). Quality-gate thresholds will
 ## Status
 
 No application code yet. The agent writes it during the first run.
+
+## License
+
+[Apache License 2.0](LICENSE)
