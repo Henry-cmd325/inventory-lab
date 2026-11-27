@@ -71,3 +71,6 @@ Thumbs.db
 
 # Antigravity CLI
 .antigravitycli/
+
+# Stryker
+StrykerOutput/
