@@ -1,0 +1,9 @@
+{
+  "stryker-config": {
+    "project": "Inventory.Domain.csproj",
+    "test-projects": ["Inventory.Domain.Tests.csproj"],
+    "test-runner": "mtp",
+    "reporters": ["progress", "cleartext", "html", "json"],
+    "thresholds": { "high": 90, "low": 75, "break": 0 }
+  }
+}

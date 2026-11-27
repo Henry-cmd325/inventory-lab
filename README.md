@@ -24,9 +24,35 @@ Results go into [`EXPERIMENTS.md`](EXPERIMENTS.md). Quality-gate thresholds will
 
 .NET (AOT-first), Clean Architecture + Vertical Slice Architecture, [FastSharp](https://github.com/Henry-cmd325/FastSharp), everything in Docker.
 
+## Run it
+
+Only Docker is needed.
+
+| Goal | Command |
+| --- | --- |
+| Run the API on http://localhost:8080 | `docker compose up --build api` |
+| All tests (agent loop and PR tier) | `docker compose run --rm test` |
+| Mutation testing (domain) | `docker compose run --rm mutation` |
+| Stop and delete the data | `docker compose down -v` |
+
+```bash
+curl -X POST localhost:8080/stock/ABC-1/receipts -H 'content-type: application/json' -d '{"quantity":5}'
+curl -X POST localhost:8080/stock/ABC-1/issues   -H 'content-type: application/json' -d '{"quantity":9}'   # 409: only 5 on hand
+```
+
+## Layout
+
+| Path | What lives there |
+| --- | --- |
+| `src/Inventory.Domain/` | The domain classes: the documentation of the business rules |
+| `src/Inventory.Api/Features/<Area>/<Slice>/` | One folder per use case: endpoint, handler and store |
+| `tests/` | Property-based domain tests, HTTP tests against PostgreSQL, architecture tests |
+| `db/init.sql` | Database schema |
+| `.claude/skills/` | The factory skills used for the runs (see `FACTORY_VERSION`) |
+
 ## Status
 
-No application code yet. The agent writes it during the first run.
+Run 1 built the first feature: stock receipts and issues, with the rule "stock can never go negative". Results are in [`EXPERIMENTS.md`](EXPERIMENTS.md).
 
 ## License
 

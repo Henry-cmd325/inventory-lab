@@ -1,0 +1,57 @@
+# Everything runs here: the app, the database and the checks.
+#   docker compose up --build api        run the API on http://localhost:8080
+#   docker compose run --rm test         all tests (agent loop and PR tier)
+#   docker compose run --rm mutation     Stryker.NET on the domain
+#   docker compose down -v               stop and delete the data
+
+x-sdk: &sdk
+  image: mcr.microsoft.com/dotnet/sdk:10.0-noble-aot
+  working_dir: /src
+  volumes:
+    - .:/src
+    - nuget:/root/.nuget/packages
+  environment:
+    ConnectionStrings__Inventory: Host=db;Database=inventory;Username=inventory;Password=inventory
+    DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: inventory
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventory -d inventory"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__Inventory: Host=db;Database=inventory;Username=inventory;Password=inventory
+    depends_on:
+      db:
+        condition: service_healthy
+
+  test:
+    <<: *sdk
+    profiles: ["checks"]
+    command: ["dotnet", "test", "Inventory.slnx"]
+
+  mutation:
+    <<: *sdk
+    profiles: ["checks"]
+    depends_on: []
+    command: ["bash", "-c", "dotnet tool restore && cd tests/Inventory.Domain.Tests && dotnet stryker"]
+
+volumes:
+  nuget:
